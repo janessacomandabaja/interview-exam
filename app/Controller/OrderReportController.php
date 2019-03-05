@@ -13,30 +13,31 @@
 			$portions = $this->Portion->find('all',array('conditions'=>array('Portion.valid'=>1),'recursive'=>2));
 			// debug($portions);exit;
 
+			$order_reports = array_reduce($orders, function($acc, $order) use ($portions) {
+				$orderName = $order['Order']['name'];
+				$acc[$orderName] = array();
+				foreach ($order['OrderDetail'] as $orderDetail) {
+					$quantity = $orderDetail['quantity'];
+					$filteredPortions = array_filter($portions, function ($portion) use ($orderDetail) {
+						return $portion['Item']['name'] == $orderDetail['Item']['name'];
+					});
+	
+					foreach ($filteredPortions as $portion) {
+						foreach ($portion['PortionDetail'] as $portionDetail) {
+							$ingredientName = $portionDetail['Part']['name'];
+							$value = $portionDetail['value'] * $quantity;
+							if(array_key_exists($ingredientName, $acc[$orderName])) {
+								$acc[$orderName][$ingredientName] += $value;
+							} else {
+								$acc[$orderName][$ingredientName] = $value;
+							} 
+						}
+					}
+				} 
+				return $acc;
+			}, array());
 
-			// To Do - write your own array in this format
-			$order_reports = array('Order 1' => array(
-										'Ingredient A' => 1,
-										'Ingredient B' => 12,
-										'Ingredient C' => 3,
-										'Ingredient G' => 5,
-										'Ingredient H' => 24,
-										'Ingredient J' => 22,
-										'Ingredient F' => 9,
-									),
-								  'Order 2' => array(
-								  		'Ingredient A' => 13,
-								  		'Ingredient B' => 2,
-								  		'Ingredient G' => 14,
-								  		'Ingredient I' => 2,
-								  		'Ingredient D' => 6,
-								  	),
-								);
-
-			// ...
-
-			$this->set('order_reports',$order_reports);
-
+			$this->set('order_reports', $order_reports);
 			$this->set('title',__('Orders Report'));
 		}
 
@@ -60,5 +61,4 @@
 
 			$this->set('title',__('Question - Orders Report'));
 		}
-
 	}
