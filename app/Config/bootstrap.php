@@ -112,3 +112,14 @@ CakeLog::config('error', array(
 	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
 	'file' => 'error',
 ));
+
+/**
+ * Configure the autoloader
+ */
+spl_autoload_register( function($class) {
+	foreach(App::path('Vendor') as $base) {
+			$path = $base . str_replace('\\', DS, $class) . '.php';
+			if (file_exists($path)) 
+					return include $path;            
+	}
+}, true);
