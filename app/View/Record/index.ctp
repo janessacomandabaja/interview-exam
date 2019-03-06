@@ -16,7 +16,7 @@
 			"bProcessing": true,
 			"bServerSide": true,
 			"sServerMethod": "POST",
-			"sAjaxSource": "Record/listings"
+			"sAjaxSource": "<?php echo Router::url(array('controller' => 'Record', 'action' =>'listings'), true); ?>"
 		});
 	})
 </script>
